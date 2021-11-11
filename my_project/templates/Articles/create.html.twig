@@ -1,0 +1,8 @@
+{% extends "base.html.twig" %}
+{% block title %}Posts{% endblock %}
+{% block body %}
+{% form_start(Article) %}
+{% form_widget(Article) %}
+<input type="submit" value="Create Article"> 
+{% form_end(Article) %}
+{% endblock %} 

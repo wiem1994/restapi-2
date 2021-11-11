@@ -1,0 +1,41 @@
+
+{%  extends "base.html.twig" %}
+{% block javascripts%}
+{{ encore_entry_script_tags('article')}}
+{% endblock %}
+{% block body %}
+<input type="hidden" id="url-articles-list" value="{{path('get_posts')}}">
+
+<select id="page-size">
+<option>5</option>
+<option>10</option>
+<option>15</option>
+</select>
+<table border="1" id="tab-liste-article">
+<thead>
+<tr>
+<th>
+id
+</th>
+<th>
+titre
+</th>
+<th>
+contenu
+</th>
+<th>
+auteur
+</th>
+<th>
+date publication
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td colspan="5">aucune donnée</td>
+</tr>
+</tbody>
+</table>
+{% endblock %}
+

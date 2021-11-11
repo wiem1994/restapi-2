@@ -1,0 +1,23 @@
+{% extends "base.html.twig" %}
+{% block title %}Posts{% endblock %}
+{% block body %}
+
+
+<table width="50%" border="1" cellspacing="1" cellpadding="7">
+ 
+<tr>
+    <th>Titre</th>
+    <th>Contenu</th>
+     <th>Auteur</th>
+      <th>Date de publication</th>
+</tr>
+  {% for element in articles %}
+  <tr>
+    <td>{{ element.titre }}</td>
+    <td>{{ element.contenu }}</td>
+    <td>{{ element.auteur }}</td>
+    <td>{{ element.datepublication|date("m/d/Y") }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %} 
