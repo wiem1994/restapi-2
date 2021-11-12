@@ -2,11 +2,12 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Article;
 use App\Form\ArticleType;
 use App\Repository\ArticleRepository;
-use DateTime;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
@@ -67,21 +68,33 @@ class TestController extends AbstractFOSRestController
     /**
      * @Rest\Post("/articles")
      */
-    public function createArticle(Request $request)
+    public function createArticle(Request $request): Response
     {
+        $data = $request->request->all();
 
-        $article = new Article;
-        $article->setTitre("test")
-            ->setContenu("test")
-            ->setAuteur("test")
-            ->setDatepublication(new DateTime());
+        if (isset($data['title']) && isset($data['contenu']) && isset($data['auteur'])) {
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($article);
-        $entityManager->flush();
+            $article = new Article();
 
+            $article->setTitre($data['title']);
 
-        return "ok";
+            $article->setContenu($data['contenu']);
+
+            $article->setAuteur($data['auteur']);
+
+            $date = new \DateTime();
+
+            $article->setDatepublication($date);
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($article);
+            $entityManager->flush();
+
+            return new Response('success with id: ' . $article->getId());
+        } else {
+
+            return new Response('error');
+        }
     }
 
     /**
@@ -89,7 +102,6 @@ class TestController extends AbstractFOSRestController
      */
     public function getThreeArticles(ArticleRepository $article)
     {
-
 
         $articles = $article->findAll();
         $data = array();
@@ -107,42 +119,73 @@ class TestController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Delete("/delete-article/{id}")
+     * @Rest\Delete("/{article}")
      */
-    public function deleteArticle(ArticleRepository $article, $id)
+    public function deleteArticle(Article $article)
     {
-        $oneArticle = $article->find($id);
-        if (empty($oneArticle)) {
+
+        if (empty($article)) {
             throw $this->createNotFoundException('404 not found');
         }
         $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->remove($oneArticle);
+        $entityManager->remove($article);
         $entityManager->flush();
         return "deleted";
     }
 
     /**
-     * @Rest\Put("/article/{id}")
+     * @Rest\Put("/article-updated/{id}")
      */
-    public function modifyArticle(ArticleRepository $article, $id)
+    public function modifyArticle(ArticleRepository $article1, $id, Request $request)
     {
-        $oneArticle = $article->find($id);
-        if (!empty($oneArticle)) {
-            $oneArticle->setTitre("updated");
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($oneArticle);
-            $entityManager->flush();
-            return "updated";
+
+        $article = $article1->find($id);
+
+        $data = $request->request->all();
+
+        if ($article) {
+
+            if (isset($data['title']) && isset($data['contenu']) && isset($data['auteur'])) {
+
+                $article->setTitre($data['title']);
+
+                $article->setContenu($data['contenu']);
+
+                $article->setAuteur($data['auteur']);
+
+                $date = new \DateTime();
+
+                $article->setDatepublication($date);
+
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->merge($article);
+                $entityManager->flush();
+
+                return new Response('updated with id: ' . $article->getId());
+            } else {
+
+                return new Response('error');
+            }
         } else {
-            $article = new Article;
-            $article->setTitre("test")
-                ->setContenu("test")
-                ->setAuteur("test")
-                ->setDatepublication(new DateTime());
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($article);
-            $entityManager->flush();
-            return "created";
+
+            if (isset($data['title']) && isset($data['contenu']) && isset($data['auteur'])) {
+
+                $article = new Article();
+
+                $article->setTitre($data['title']);
+
+                $article->setContenu($data['contenu']);
+
+                $article->setAuteur($data['auteur']);
+
+                $date = new \DateTime();
+
+                $article->setDatepublication($date);
+                $entityManager = $this->getDoctrine()->getManager();
+                $entityManager->persist($article);
+                $entityManager->flush();
+                return new Response('updated with id: ' . $article->getId());
+            }
         }
     }
 }
